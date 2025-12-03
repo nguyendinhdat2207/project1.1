@@ -1,9 +1,3 @@
-"""
-CLI Display Formatter - Orderbook display formatting
-
-Provides methods to format and display orderbook data in terminal
-"""
-
 from decimal import Decimal
 from .utils import (
     format_price, format_amount, format_bps, format_currency,
@@ -12,29 +6,11 @@ from .utils import (
 
 
 class OrderbookDisplay:
-    """Handles display of orderbook data in terminal"""
-    
+
     def __init__(self, mid_price: float):
-        """Initialize display formatter
-        
-        Args:
-            mid_price: Mid market price
-        """
         self.mid_price = mid_price
     
     def display_current_settings(self, settings: dict):
-        """Display current settings
-        
-        Args:
-            settings: Settings dictionary with keys:
-                - mid_price: Current mid price
-                - swap_amount: Swap amount
-                - scenario: Scenario type (small/medium/large)
-                - spread_step_bps: Spread step
-                - base_size: Base size
-                - decay: Decay factor
-                - capital_usd: Capital in USD (for large scenario)
-        """
         print_section("⚙️  CURRENT SETTINGS")
         
         print(f"  Mid Price:     {format_price(settings['mid_price'])}/ETH")
@@ -51,11 +27,6 @@ class OrderbookDisplay:
         print()
     
     def display_orderbook(self, orderbook: dict):
-        """Display orderbook in Kyberswap-like format
-        
-        Args:
-            orderbook: Orderbook data dictionary
-        """
         if not orderbook:
             print("❌ No orderbook data. Generate one first.\n")
             return
@@ -140,11 +111,6 @@ class OrderbookDisplay:
         print()
     
     def display_summary(self, orderbook: dict):
-        """Display summary statistics
-        
-        Args:
-            orderbook: Orderbook data dictionary
-        """
         if not orderbook:
             return
         
