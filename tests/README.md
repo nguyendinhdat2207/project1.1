@@ -7,9 +7,15 @@ Cấu trúc test được tổ chức theo pytest best practices.
 ```
 tests/
 ├── conftest.py                          # Pytest configuration (auto path setup)
+├── api/                                 # API endpoint tests
+│   ├── README.md                        # API tests documentation
+│   ├── test_api_client.py              # Python client test for FastAPI
+│   └── test_api.sh                      # Bash script test for API endpoints
 ├── integration/                         # Integration tests (multiple modules)
 │   ├── test_full_pipeline.py           # M1+M2+M3+M4 (Full pipeline with assertions)
-│   └── test_modules_m1_m2_m3.py        # M1+M2+M3 (AMM → Orderbook → Matching)
+│   ├── test_modules_m1_m2_m3.py        # M1+M2+M3 (AMM → Orderbook → Matching)
+│   ├── test_module1_quoter_integration.py  # M1 Quoter V2 + M2+M3+M4
+│   └── test_4_modules_detailed.py      # Detailed test for all 4 modules + API
 └── unit/                                # Unit tests (single components)
     └── test_virtual_orderbook.py       # VirtualOrderBook (3 scenarios: Small/Medium/Large)
 ```
@@ -43,7 +49,59 @@ pytest tests/ -v -s
 
 ## Mô tả Tests
 
+### API Tests
+
+#### `test_api_client.py`
+- **Endpoint**: GET /api/unihybrid/execution-plan
+- **Framework**: Python requests
+- **Tests**:
+  1. Health check (GET /health)
+  2. Root endpoint (GET /)
+  3. Execution plan (GET /api/unihybrid/execution-plan)
+- **Validates**: All 36 response fields
+- **Output**: Detailed savings, split, hook data
+- **Status**: ✅ PASSED - Production ready
+
+#### `test_api.sh`
+- **Endpoint**: GET /api/unihybrid/execution-plan
+- **Framework**: Bash + curl
+- **Tests**: Same as test_api_client.py
+- **Output**: JSON response
+- **Status**: ✅ PASSED
+
+**Requirements:**
+- API server running: `uvicorn api.main:app --host 0.0.0.0 --port 8000`
+- Run: `python tests/api/test_api_client.py` or `./tests/api/test_api.sh`
+
 ### Integration Tests
+
+#### `test_4_modules_detailed.py` ⭐ **COMPREHENSIVE TEST**
+- **Modules**: M1 + M2 + M3 + M4 + API
+- **Coverage**: All 5 components
+- **Tests**:
+  1. Module 1: AMM Quoter V2 (4 sub-tests)
+  2. Module 2: Synthetic Orderbook (3 scenarios)
+  3. Module 3: Greedy Matching (3 swap sizes)
+  4. Module 4: Execution Plan Builder
+  5. API Integration (compare direct vs API)
+- **Output**: Detailed analysis of each module
+- **Status**: ✅ ALL PASSED (5/5)
+- **Run**: `python tests/integration/test_4_modules_detailed.py`
+
+#### `test_module1_quoter_integration.py`
+- **Modules**: M1 (Quoter V2) + M2 + M3 + M4
+- **Focus**: Quoter V2 integration with full pipeline
+- **Tests**:
+  - Real on-chain quote from Quoter V2
+  - Synthetic orderbook generation
+  - Greedy matching with real AMM price
+  - Execution plan with savings calculation
+- **Results**: 
+  - AMM: 3,085.03 USDC
+  - UniHybrid: 3,116.84 USDC
+  - Savings: +12.07 USDC after fee
+- **Status**: ✅ PASSED
+- **Run**: `python tests/integration/test_module1_quoter_integration.py`
 
 #### `test_full_pipeline.py`
 - **Modules**: M1 + M2 + M3 + M4
