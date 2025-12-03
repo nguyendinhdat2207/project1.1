@@ -1,6 +1,14 @@
 from decimal import Decimal
 from typing import Dict, Any, List
+from dataclasses import dataclass
 from eth_abi import encode
+
+
+@dataclass
+class LevelUsed:
+    price: Decimal
+    amount_in_from_level: int
+    amount_out_from_level: int
 
 
 class ExecutionPlanBuilder:
