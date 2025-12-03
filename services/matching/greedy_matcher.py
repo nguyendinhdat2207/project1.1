@@ -36,7 +36,7 @@ class GreedyMatcher:
         swap_amount: int,
         is_bid: bool = False
     ) -> Dict:
-        """Match swap against orderbook levels, fallback to AMM"""
+        
         min_better_price = self.price_amm * (
             Decimal('1') + Decimal(self.ob_min_improve_bps) / Decimal('10000')
         )
@@ -101,7 +101,7 @@ class GreedyMatcher:
         match_result: Dict,
         amm_reference_out: int
     ) -> Dict:
-        """Calculate savings vs 100% AMM swap"""
+        
         amount_out_from_amm = 0
         if match_result['amount_in_on_amm'] > 0:
             amount_out_from_amm = int(

@@ -267,11 +267,11 @@ class OrderbookDisplayFormatter(ABC):
         print("─"*width)
     
     def print_divider(self, width: int = 80):
-        """Print divider line"""
+        
         print("─"*width)
     
     def print_footer(self, width: int = 80):
-        """Print footer line"""
+        
         print("="*width + "\n")
     
     def format_table_row(self, columns: list, widths: list, separator: str = " | ") -> str:

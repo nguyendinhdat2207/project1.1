@@ -17,7 +17,7 @@ from display import TableOrderbookDisplay
 
 
 class OrderbookTableDisplay:
-    """Hiển thị orderbook dưới dạng bảng using reusable display formatter"""
+    
     
     def __init__(self, mid_price=2700.0):
         self.vob = VirtualOrderBook(mid_price=mid_price)
@@ -26,7 +26,7 @@ class OrderbookTableDisplay:
         self.formatter = TableOrderbookDisplay(mid_price=mid_price)
         
     def generate_and_display(self, scenario='medium', swap_amount=1.0, capital_usd=50000):
-        """Generate orderbook và hiển thị bảng"""
+        
         if scenario == 'large':
             # For large scenario, need CEX snapshot
             cex_snapshot = generate_sample_cex_snapshot(self.mid_price, num_levels=10)
@@ -52,16 +52,16 @@ class OrderbookTableDisplay:
         self.display_table()
     
     def display_table(self):
-        """Hiển thị bảng orderbook kiểu Kyberswap"""
+        
         self.formatter.display_orderbook(self.orderbook)
     
     def display_summary(self):
-        """Hiển thị thống kê tóm tắt"""
+        
         self.formatter.display_summary(self.orderbook)
 
 
 def main():
-    """Hiển thị 3 scenarios"""
+    
     
     print("\n" + "🎮 ORDERBOOK TABLE DISPLAY - 3 SCENARIOS".center(130))
     print()

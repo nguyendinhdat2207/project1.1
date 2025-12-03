@@ -27,7 +27,7 @@ class SyntheticOrderbookGenerator:
         swap_amount: int,
         is_bid: bool = False
     ) -> List[OrderbookLevel]:
-        """Thin orderbook - depth ~0.5x swap amount, 30 bps spread"""
+        
         DEPTH_MULTIPLIER = Decimal('0.5')
         SPREAD_BPS = Decimal('30')
         
@@ -57,7 +57,7 @@ class SyntheticOrderbookGenerator:
         decay_factor: Decimal = Decimal('0.7'),
         target_depth_multiplier: Decimal = Decimal('2.5')
     ) -> List[OrderbookLevel]:
-        """Medium depth orderbook - 5 levels, exponential decay, total depth ~2.5x"""
+        
         levels: List[OrderbookLevel] = []
         total_unscaled = Decimal('0')
         
@@ -104,7 +104,7 @@ class SyntheticOrderbookGenerator:
         capital_usd: Decimal = Decimal('1000000'),
         is_bid: bool = False
     ) -> List[OrderbookLevel]:
-        """CEX-like orderbook - deep liquidity scaled by capital"""
+        
         NUM_LEVELS = 5
         SPREAD_STEP_BPS = Decimal('400')
         

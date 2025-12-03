@@ -144,7 +144,7 @@ def get_amm_output(
     amount_in: int,
     fee: int = 3000
 ) -> dict:
-    """Get quote from AMM using Quoter V2"""
+    
     quote_result = quote_exact_input_single_v2(
         token_in=token_in,
         token_out=token_out,
@@ -163,7 +163,7 @@ def get_amm_output(
 
 
 def get_price_for_pool(pool_address: str):
-    """Get pool price data. Returns token1/token0 price (e.g., USDT per ETH)."""
+    
     tokens = get_pool_tokens_and_decimals(pool_address)
     slot0 = get_slot0(pool_address)
     sqrtP = slot0["sqrtPriceX96"]

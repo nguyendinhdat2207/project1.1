@@ -8,13 +8,11 @@ from decimal import Decimal
 from services.execution.ui import VirtualOrderBook, generate_sample_cex_snapshot
 from .display import OrderbookDisplay
 from .utils import clear_screen, print_header, print_footer
-
-
 class OrderbookCLIMenu:
-    """Interactive menu for virtual orderbook CLI"""
+    
     
     def __init__(self):
-        """Initialize CLI menu"""
+        
         self.mid_price = 2700.0
         self.swap_amount = 1.0
         self.scenario = 'medium'
@@ -27,7 +25,7 @@ class OrderbookCLIMenu:
         self.display = OrderbookDisplay(self.mid_price)
     
     def print_menu(self):
-        """Print main menu options"""
+        
         print("\n" + "="*80)
         print("📊 VIRTUAL ORDERBOOK - INTERACTIVE CLI")
         print("="*80)
@@ -48,12 +46,12 @@ class OrderbookCLIMenu:
         print("\n" + "="*80)
     
     def get_menu_choice(self) -> str:
-        """Get user menu choice"""
+        
         choice = input("Enter choice (0-12): ").strip()
         return choice
     
     def generate_orderbook(self):
-        """Generate orderbook based on current settings"""
+        
         print("\n⏳ Generating orderbook...")
         
         try:
@@ -84,7 +82,7 @@ class OrderbookCLIMenu:
             self.orderbook = None
     
     def view_orderbook(self):
-        """Display current orderbook"""
+        
         if not self.orderbook:
             print("\n❌ No orderbook generated. Please generate one first.")
             return
@@ -92,7 +90,7 @@ class OrderbookCLIMenu:
         self.display.display_orderbook(self.orderbook)
     
     def view_summary(self):
-        """Display orderbook summary"""
+        
         if not self.orderbook:
             print("\n❌ No orderbook generated. Please generate one first.")
             return
@@ -100,7 +98,7 @@ class OrderbookCLIMenu:
         self.display.display_summary(self.orderbook)
     
     def view_settings(self):
-        """Display current settings"""
+        
         settings = {
             'mid_price': self.mid_price,
             'swap_amount': self.swap_amount,
@@ -113,7 +111,7 @@ class OrderbookCLIMenu:
         self.display.display_current_settings(settings)
     
     def change_mid_price(self):
-        """Change mid price"""
+        
         try:
             new_price = float(input("Enter new mid price (USDT/ETH): "))
             if new_price <= 0:
@@ -130,7 +128,7 @@ class OrderbookCLIMenu:
             print("❌ Invalid input. Please enter a valid number.")
     
     def change_swap_amount(self):
-        """Change swap amount"""
+        
         try:
             new_amount = float(input("Enter new swap amount (ETH): "))
             if new_amount <= 0:
@@ -145,7 +143,7 @@ class OrderbookCLIMenu:
             print("❌ Invalid input. Please enter a valid number.")
     
     def change_scenario(self):
-        """Change scenario"""
+        
         print("Available scenarios: small, medium, large")
         new_scenario = input("Enter scenario: ").strip().lower()
         
@@ -157,7 +155,7 @@ class OrderbookCLIMenu:
             print("❌ Invalid scenario. Please enter: small, medium, or large")
     
     def change_spread_step(self):
-        """Change spread step"""
+        
         try:
             new_step = int(input("Enter new spread step (bps): "))
             if new_step <= 0:
@@ -172,7 +170,7 @@ class OrderbookCLIMenu:
             print("❌ Invalid input. Please enter a valid number.")
     
     def change_base_size(self):
-        """Change base size"""
+        
         try:
             new_size = float(input("Enter new base size (ETH): "))
             if new_size <= 0:
@@ -187,7 +185,7 @@ class OrderbookCLIMenu:
             print("❌ Invalid input. Please enter a valid number.")
     
     def change_decay(self):
-        """Change decay factor"""
+        
         try:
             new_decay = float(input("Enter new decay factor (0-1): "))
             if not 0 < new_decay <= 1:
@@ -202,7 +200,7 @@ class OrderbookCLIMenu:
             print("❌ Invalid input. Please enter a valid number.")
     
     def change_capital(self):
-        """Change capital (for large scenario)"""
+        
         try:
             new_capital = float(input("Enter new capital (USD): "))
             if new_capital <= 0:
@@ -217,7 +215,7 @@ class OrderbookCLIMenu:
             print("❌ Invalid input. Please enter a valid number.")
     
     def run(self):
-        """Run the interactive CLI menu"""
+        
         while True:
             clear_screen()
             print_header("📊 VIRTUAL ORDERBOOK - INTERACTIVE CLI")

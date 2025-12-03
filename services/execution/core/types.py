@@ -11,7 +11,7 @@ from decimal import Decimal
 
 @dataclass
 class ExecutionLeg:
-    """Single execution step (order or AMM swap)"""
+    
     source: Literal['kyber', 'amm']  # Where to execute
     to: str  # Contract address to call
     calldata: str  # Encoded function call
@@ -23,7 +23,7 @@ class ExecutionLeg:
 
 @dataclass
 class MatchingResult:
-    """Result from greedy matching algorithm"""
+    
     legs: List[ExecutionLeg]  # List of execution steps
     remaining_in: str  # Unmatched amount
     kyber_amount: str  # Amount matched from Kyber/synthetic orderbook
@@ -33,7 +33,7 @@ class MatchingResult:
 
 @dataclass
 class SavingsData:
-    """Savings calculation results"""
+    
     amm_reference_out: Decimal  # Output if swapped 100% via AMM
     expected_total_out: Decimal  # Combined output (orderbook + AMM)
     savings_before_fee: Decimal  # Savings before performance fee
@@ -42,7 +42,7 @@ class SavingsData:
     savings_after_fee: Decimal  # Savings after performance fee
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization"""
+        
         return {
             'amm_reference_out': str(self.amm_reference_out),
             'expected_total_out': str(self.expected_total_out),
@@ -55,7 +55,7 @@ class SavingsData:
 
 @dataclass
 class ExecutionPlan:
-    """Complete execution plan for UniHybrid API response"""
+    
     split: Dict[str, Any]  # {amount_in_total, amount_in_on_orderbook, amount_in_on_amm}
     legs: List[ExecutionLeg]  # Execution steps
     hook_data_args: Dict[str, Any]  # Arguments for hook_data
@@ -64,7 +64,7 @@ class ExecutionPlan:
     min_total_out: str  # Minimum output with slippage tolerance
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization"""
+        
         return {
             'split': self.split,
             'legs': [
