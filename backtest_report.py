@@ -34,40 +34,40 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     print(f"SCENARIO: {scenario_name}")
     print(f"{'='*100}\n")
     
-    # Pool ETH/USDT trên Base
+    # Pool ETH/USDC trên Base
     POOL_ADDRESS = "0x6c561B446416E1A00E8E93E221854d6eA4171372"
     TOKEN_ETH = "0x4200000000000000000000000000000000000006"
-    TOKEN_USDT = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    TOKEN_USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
     
     # Fetch AMM price
     print("📊 Bước 1: Lấy giá từ AMM Pool")
     pool_data = get_price_for_pool(POOL_ADDRESS)
-    price_usdt_per_eth = pool_data['price_eth_per_usdt']  # USDT/ETH
-    price_eth_per_usdt = Decimal('1') / price_usdt_per_eth
+    price_usdc_per_eth = pool_data['price_eth_per_usdt']  # USDC/ETH
+    price_eth_per_usdc = Decimal('1') / price_usdc_per_eth
     
-    print(f"   Pool: ETH/USDT")
-    print(f"   AMM Price: {float(price_usdt_per_eth):,.2f} USDT/ETH\n")
+    print(f"   Pool: ETH/USDC")
+    print(f"   AMM Price: {float(price_usdc_per_eth):,.2f} USDC/ETH\n")
     
     # Convert swap amount
     swap_amount_base = int(swap_amount_eth * 10**18)  # WETH có 18 decimals
-    swap_amount_usd = swap_amount_eth * float(price_usdt_per_eth)
+    swap_amount_usd = swap_amount_eth * float(price_usdc_per_eth)
     
     print(f"💰 Swap Amount: {swap_amount_eth} ETH (~{format_currency(swap_amount_usd)})")
     
     # Baseline: 100% AMM
     print(f"\n📈 Bước 2: Tính baseline (100% AMM)")
-    amm_output_usdt = swap_amount_eth * float(price_usdt_per_eth)
-    print(f"   Nếu swap 100% qua AMM: {amm_output_usdt:,.2f} USDT")
+    amm_output_usdc = swap_amount_eth * float(price_usdc_per_eth)
+    print(f"   Nếu swap 100% qua AMM: {amm_output_usdc:,.2f} USDC")
     
     # Generate synthetic orderbook
-    # Swap ETH → USDT: ta bán ETH, mua USDT
+    # Swap ETH → USDC: ta bán ETH, mua USDC
     # Muốn giá tốt = giá CAO hơn AMM → dùng ASK side (is_bid=False)
-    # Input: ETH (18 decimals), Output: USDT (6 decimals)
+    # Input: ETH (18 decimals), Output: USDC (6 decimals)
     print(f"\n📚 Bước 3: Generate Synthetic Orderbook ({scenario_type})")
     generator = SyntheticOrderbookGenerator(
-        price_usdt_per_eth,  # Giá USDT/ETH (price của output token per input token)
+        price_usdc_per_eth,  # Giá USDC/ETH (price của output token per input token)
         decimals_in=18,  # ETH input
-        decimals_out=6   # USDT output
+        decimals_out=6   # USDC output
     )
     # is_bid=False → ASK side (giá cao hơn mid) tốt cho người bán ETH
     levels = generator.generate(scenario_type, swap_amount_base, is_bid=False)
@@ -79,13 +79,13 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
         for i, level in enumerate(levels[:3], 1):
             price = float(level.price)
             amount_eth = float(level.amount_in_available) / 10**18
-            amount_usdt = float(level.amount_out_available) / 10**6
-            print(f"      Level {i}: {price:,.2f} USDT/ETH | {amount_eth:.4f} ETH available | {amount_usdt:,.2f} USDT output")
+            amount_usdc = float(level.amount_out_available) / 10**6
+            print(f"      Level {i}: {price:,.2f} USDC/ETH | {amount_eth:.4f} ETH available | {amount_usdc:,.2f} USDC output")
     
     # Greedy matching
     print(f"\n🎯 Bước 4: Greedy Matching")
     matcher = GreedyMatcher(
-        price_usdt_per_eth,  # AMM price
+        price_usdc_per_eth,  # AMM price
         decimals_in=18,
         decimals_out=6,
         ob_min_improve_bps=5  # Orderbook phải tốt hơn AMM ít nhất 5 bps
@@ -105,7 +105,7 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     # Build execution plan
     print(f"\n⚙️  Bước 5: Build Execution Plan")
     builder = ExecutionPlanBuilder(
-        price_amm=price_usdt_per_eth,  # USDT/ETH
+        price_amm=price_usdc_per_eth,  # USDC/ETH
         decimals_in=18,
         decimals_out=6,
         performance_fee_bps=3000,  # 30%
@@ -115,14 +115,14 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     execution_plan = builder.build_plan(
         match_result=match_result,
         token_in_address=TOKEN_ETH,
-        token_out_address=TOKEN_USDT,
+        token_out_address=TOKEN_USDC,
         max_matches=8,
         me_slippage_limit=200
     )
     
     # Calculate results
-    amm_reference = float(execution_plan['amm_reference_out']) / 10**6  # USDT
-    expected_total = float(execution_plan['expected_total_out']) / 10**6  # USDT
+    amm_reference = float(execution_plan['amm_reference_out']) / 10**6  # USDC
+    expected_total = float(execution_plan['expected_total_out']) / 10**6  # USDC
     savings_before = float(execution_plan['savings_before_fee']) / 10**6
     savings_after = float(execution_plan['savings_after_fee']) / 10**6
     perf_fee = float(execution_plan['performance_fee_amount']) / 10**6
@@ -143,11 +143,11 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     print(f"{'='*100}\n")
     
     print(f"💵 Output Comparison:")
-    print(f"   Ideal (no slippage):     {format_currency(ideal_output)} USDT")
-    print(f"   AMM Reference (100%):    {format_currency(amm_reference)} USDT")
-    print(f"   UniHybrid Total Output:  {format_currency(expected_total)} USDT")
-    print(f"   Performance Fee (30%):   {format_currency(perf_fee)} USDT")
-    print(f"   Net to User:             {format_currency(expected_total - perf_fee)} USDT\n")
+    print(f"   Ideal (no slippage):     {format_currency(ideal_output)} USDC")
+    print(f"   AMM Reference (100%):    {format_currency(amm_reference)} USDC")
+    print(f"   UniHybrid Total Output:  {format_currency(expected_total)} USDC")
+    print(f"   Performance Fee (30%):   {format_currency(perf_fee)} USDC")
+    print(f"   Net to User:             {format_currency(expected_total - perf_fee)} USDC\n")
     
     print(f"📈 Savings:")
     print(f"   Savings Before Fee:      {format_currency(savings_before)} ({savings_bps:.2f} bps)")
@@ -163,7 +163,7 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     print(f"📋 DÒNG CHO BẢNG BÁO CÁO:")
     print(f"{'='*100}\n")
     
-    pair_description = f"ETH-USDT ({scenario_type} liquidity)"
+    pair_description = f"ETH-USDC ({scenario_type} liquidity)"
     
     print(f"| {pair_description:50s} | {ob_percentage:6.2f}% | {amm_percentage:6.2f}% | "
           f"{format_bps(slippage_original_bps):15s} | "
@@ -187,7 +187,7 @@ def main():
     print("\n" + "="*100)
     print("🔬 BACKTEST: UNIHYBRID vs 100% AMM")
     print("="*100)
-    print("\nSwap: ETH → USDT trên Base network")
+    print("\nSwap: ETH → USDC trên Base network")
     print("Khối lượng: ~$100,000 USD")
     print("="*100)
     

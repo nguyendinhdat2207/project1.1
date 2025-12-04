@@ -2,22 +2,22 @@
 
 ## 1. Mô tả case backtest
 
-- **Route**: Swap ETH → USDT
-- **Khối lượng**: 33 ETH (~105,000 USDT, order cỡ $100,000 USD)
-- **Pool AMM**: ETH/USDT trên Base network (Uniswap V3)
+- **Route**: Swap ETH → USDC
+- **Khối lượng**: 33 ETH (~105,000 USDC, order cỡ $100,000 USD)
+- **Pool AMM**: ETH/USDC trên Base network (Uniswap V3)
   - Pool Address: `0x6c561B446416E1A00E8E93E221854d6eA4171372`
   - Token In (ETH): `0x4200000000000000000000000000000000000006`
-  - Token Out (USDT): `0x833589fcd6edb6e08f4c7c32d4f71b54bda02913`
+  - Token Out (USDC): `0x833589fcd6edb6e08f4c7c32d4f71b54bda02913`
 - **Nguồn thanh khoản**:
-  - **AMM**: Pool ETH/USDT Uniswap V3 (thanh khoản sâu)
+  - **AMM**: Pool ETH/USDC Uniswap V3 (thanh khoản sâu)
   - **Orderbook**: Synthetic Orderbook (tự xây dựng với 3 scenarios)
 
 ### Thông số AMM Pool:
 
-- `priceAmm = 3,194.98 USDT/ETH`
-- `priceSpot = 3,194.98 USDT/ETH` (giá spot tại thời điểm backtest)
-- Pair: ETH/USDT
-- Fee tier: 0.3%
+- `priceAmm = 3,194.98 USDC/ETH`
+- `priceSpot = 3,194.98 USDC/ETH` (giá spot tại thời điểm backtest)
+- Pair: ETH/USDC
+- Fee tier: 0.05%
 
 ---
 
@@ -64,8 +64,8 @@ Thay vì tích hợp orderbook ngoài (Kyber, Mangrove, Rubicon), hệ thống t
 
 **Thông số Orderbook:**
 - Generated: 1 level
-- Best price: 3,204.57 USDT/ETH
-- Available: 16.5 ETH (~$52,875 USDT)
+- Best price: 3,204.57 USDC/ETH
+- Available: 16.5 ETH (~$52,875 USDC)
 - Improvement vs AMM: ~10 bps
 
 **Kết quả routing:**
@@ -78,10 +78,10 @@ Levels used:           1
 
 **Output & Savings:**
 ```
-AMM Reference (100%):     $105,434.41 USDT
-UniHybrid Total Output:   $105,592.56 USDT
-Performance Fee (30%):    $47.45 USDT
-Net to User:              $105,545.12 USDT
+AMM Reference (100%):     $105,434.41 USDC
+UniHybrid Total Output:   $105,592.56 USDC
+Performance Fee (30%):    $47.45 USDC
+Net to User:              $105,545.12 USDC
 
 Savings Before Fee:       $158.15 (10.50 bps)
 Savings After Fee:        $110.71 (10.50 bps)
@@ -98,15 +98,15 @@ Savings After Fee:        $110.71 (10.50 bps)
 
 **Thông số Orderbook:**
 - Generated: 5 levels
-- Best prices: 3,199.77 → 3,209.36 USDT/ETH
-- Total depth: ~83 ETH (~$265,000 USDT)
+- Best prices: 3,199.77 → 3,209.36 USDC/ETH
+- Total depth: ~83 ETH (~$265,000 USDC)
 - Average improvement vs AMM: ~5-15 bps
 
 **Top 3 Levels:**
 ```
-Level 1: 3,199.77 USDT/ETH | 29.75 ETH | $95,193.61 USDT
-Level 2: 3,204.57 USDT/ETH | 20.83 ETH | $66,735.33 USDT  
-Level 3: 3,209.36 USDT/ETH | 14.58 ETH | $46,784.59 USDT
+Level 1: 3,199.77 USDC/ETH | 29.75 ETH | $95,193.61 USDC
+Level 2: 3,204.57 USDC/ETH | 20.83 ETH | $66,735.33 USDC  
+Level 3: 3,209.36 USDC/ETH | 14.58 ETH | $46,784.59 USDC
 ```
 
 **Kết quả routing:**
@@ -119,10 +119,10 @@ Levels used:           4
 
 **Output & Savings:**
 ```
-AMM Reference (100%):     $105,434.41 USDT
-UniHybrid Total Output:   $106,021.08 USDT
-Performance Fee (30%):    $176.00 USDT
-Net to User:              $105,845.08 USDT
+AMM Reference (100%):     $105,434.41 USDC
+UniHybrid Total Output:   $106,021.08 USDC
+Performance Fee (30%):    $176.00 USDC
+Net to User:              $105,845.08 USDC
 
 Savings Before Fee:       $586.67 (38.95 bps)
 Savings After Fee:        $410.67 (38.95 bps)
@@ -139,15 +139,15 @@ Savings After Fee:        $410.67 (38.95 bps)
 
 **Thông số Orderbook:**
 - Generated: 5 levels
-- Best price: 3,322.78 USDT/ETH (cao hơn AMM ~4%)
+- Best price: 3,322.78 USDC/ETH (cao hơn AMM ~4%)
 - Total depth: >1,000,000 ETH (rất sâu)
 - Wide spread tạo cơ hội arbitrage lớn
 
 **Top 3 Levels:**
 ```
-Level 1: 3,322.78 USDT/ETH | 350,000 ETH | $1,162,973,497 USDT
-Level 2: 3,450.58 USDT/ETH | 250,000 ETH | $862,645,176 USDT
-Level 3: 3,578.38 USDT/ETH | 200,000 ETH | $715,675,998 USDT
+Level 1: 3,322.78 USDC/ETH | 350,000 ETH | $1,162,973,497 USDC
+Level 2: 3,450.58 USDC/ETH | 250,000 ETH | $862,645,176 USDC
+Level 3: 3,578.38 USDC/ETH | 200,000 ETH | $715,675,998 USDC
 ```
 
 **Kết quả routing:**
@@ -160,10 +160,10 @@ Levels used:           1 (chỉ cần level 1 đã đủ fill toàn bộ)
 
 **Output & Savings:**
 ```
-AMM Reference (100%):     $105,434.41 USDT
-UniHybrid Total Output:   $126,521.29 USDT
-Performance Fee (30%):    $6,326.06 USDT
-Net to User:              $120,195.23 USDT
+AMM Reference (100%):     $105,434.41 USDC
+UniHybrid Total Output:   $126,521.29 USDC
+Performance Fee (30%):    $6,326.06 USDC
+Net to User:              $120,195.23 USDC
 
 Savings Before Fee:       $21,086.88 (1400.00 bps)
 Savings After Fee:        $14,760.82 (1400.00 bps)
@@ -180,9 +180,9 @@ Savings After Fee:        $14,760.82 (1400.00 bps)
 
 | Trường hợp lệnh $100,000 | Tỷ lệ khớp qua Orderbook | Tỷ lệ vào AMM | Slippage gốc* | Savings (sau fee 30%) | Slippage sau tối ưu** |
 |--------------------------|--------------------------|---------------|---------------|-----------------------|-----------------------|
-| **ETH-USDT (Shallow OB)** | 50.00% | 50.00% | 0.00 bps (~$0) | **$110.71** (11 bps) | -10.50 bps (~$-110.71) |
-| **ETH-USDT (Medium OB)** | 100.00% | 0.00% | 0.00 bps (~$0) | **$410.67** (39 bps) | -38.95 bps (~$-410.67) |
-| **ETH-USDT (Deep OB)** | 100.00% | 0.00% | 0.00 bps (~$0) | **$14,760.82** (1400 bps) | -1400.00 bps (~$-14,760.82) |
+| **ETH-USDC (Shallow OB)** | 50.00% | 50.00% | 0.00 bps (~$0) | **$110.71** (11 bps) | -10.50 bps (~$-110.71) |
+| **ETH-USDC (Medium OB)** | 100.00% | 0.00% | 0.00 bps (~$0) | **$410.67** (39 bps) | -38.95 bps (~$-410.67) |
+| **ETH-USDC (Deep OB)** | 100.00% | 0.00% | 0.00 bps (~$0) | **$14,760.82** (1400 bps) | -1400.00 bps (~$-14,760.82) |
 
 **Ghi chú:**
 - *Slippage gốc: Slippage nếu swap 100% qua AMM so với giá spot (trong trường hợp này giá AMM = spot nên slippage = 0)
@@ -197,7 +197,7 @@ Savings After Fee:        $14,760.82 (1400.00 bps)
 **Orderbook ngoài (từ báo cáo trước):**
 - Tỷ lệ khớp qua orderbook: ≈ **0%** (7.8×10⁻¹⁰ % Kyber)
 - Savings: **$0** (0 bps)
-- Lý do: Orderbook ngoài có size rất nhỏ (~10⁻⁶ USDT), không đủ fill order $100k
+- Lý do: Orderbook ngoài có size rất nhỏ (~10⁻⁶ USDC), không đủ fill order $100k
 
 **Synthetic Orderbook (báo cáo này):**
 - Tỷ lệ khớp qua orderbook: **50-100%** tùy scenario

@@ -56,7 +56,7 @@ API Documentation (Swagger): `http://localhost:8000/docs`
 ```
 
 Script này sẽ:
-- Tạo synthetic orderbook từ pool ETH/USDT trên Base
+- Tạo synthetic orderbook từ pool ETH/USDC trên Base
 - Chạy 3 kịch bản: shallow, medium, deep orderbook
 - Tính toán tiết kiệm chi phí cho từng kịch bản
 - Hiển thị kết quả chi tiết
@@ -239,9 +239,9 @@ Project1/
 
 ## Tham Số Backtest Mặc Định
 
-- **Pool**: ETH/USDT trên Base (0x6c561B446416E1A00E8E93E221854d6eA4171372)
+- **Pool**: ETH/USDC trên Base (0x6c561B446416E1A00E8E93E221854d6eA4171372)
 - **Swap Amount**: 33 ETH (~$105,434 USD)
-- **AMM Price**: ~3,194.98 USDT/ETH
+- **AMM Price**: ~3,194.98 USDC/ETH
 - **Performance Fee**: 30%
 - **Max Slippage**: 1%
 - **Greedy Threshold**: 5 bps
