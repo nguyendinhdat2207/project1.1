@@ -224,7 +224,7 @@ def main():
     print("|" + "-"*25 + "|" + "-"*14 + "|" + "-"*15 + "|" + "-"*15 + "|" + "-"*25 + "|" + "-"*22 + "|")
     
     for r in results:
-        pair_desc = f"ETH-USDT ({r['scenario']})"
+        pair_desc = f"ETH-USDC ({r['scenario']})"
         print(f"| {pair_desc:50s} | {r['ob_percentage']:6.2f}% | {r['amm_percentage']:6.2f}% | "
               f"{format_bps(r['slippage_original_bps']):15s} | "
               f"{format_currency(r['savings_usd']):12s} ({r['savings_bps']:.0f} bps) | "

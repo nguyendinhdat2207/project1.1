@@ -269,7 +269,7 @@ if __name__ == "__main__":
         print(f"   Leg {i}: {leg['source']}")
         print(f"      Amount In:  {int(leg['amount_in']) / 10**6:,.2f} USDT")
         print(f"      Amount Out: {int(leg['expected_amount_out']) / 10**18:.6f} ETH")
-        print(f"      Price:      {float(leg['effective_price']):.10f} ETH/USDT")
+        print(f"      Price:      {float(leg['effective_price']):.10f} ETH/USDC")
         
         if 'meta' in leg and 'levels_used' in leg['meta']:
             print(f"      Levels used: {len(leg['meta']['levels_used'])}")

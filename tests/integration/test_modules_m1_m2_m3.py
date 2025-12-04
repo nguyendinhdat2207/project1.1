@@ -29,7 +29,7 @@ def test_full_flow():
     swap_amount_usdt = 10000  # 10,000 USDT
     swap_amount = swap_amount_usdt * 10**6  # Base units
     
-    print(f"Test Swap: {swap_amount_usdt:,} USDT → ETH")
+    print(f"Test Swap: {swap_amount_usdt:,} USDC → ETH")
     print(f"Pool: {pool_address}")
     print()
     
@@ -49,7 +49,7 @@ def test_full_flow():
     print(f"   Token1: {pool_data['symbol1']} ({pool_data['decimals1']} decimals)")
     print()
     
-    # For USDT→ETH swap, we need ETH/USDT (inverse)
+    # For USDT→ETH swap, we need ETH/USDC (inverse)
     price_eth_per_usdt = Decimal('1') / price_usdt_per_eth
     
     # Simulate AMM reference output (100% AMM swap)
@@ -88,7 +88,7 @@ def test_full_flow():
         
         generator = SyntheticOrderbookGenerator(
             mid_price=price_eth_per_usdt,
-            decimals_in=6,   # USDT
+            decimals_in=6,   # USDC
             decimals_out=18  # ETH
         )
         

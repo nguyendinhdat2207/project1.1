@@ -198,18 +198,18 @@ class SyntheticOrderbookGenerator:
 
 
 if __name__ == "__main__":
-    # Example: User wants to BUY ETH with USDT (swap USDT → ETH)
+    # Example: User wants to BUY ETH with USDT (swap USDC → ETH)
     # This is ASK side (user buying base asset)
-    # Mid price from AMM: 2795.75 USDT per ETH
-    # Price representation: token_out/token_in = ETH/USDT = 1/2795.75 = 0.0003577
+    # Mid price from AMM: 2795.75 USDC per ETH
+    # Price representation: token_out/token_in = ETH/USDC = 1/2795.75 = 0.0003577
     
     mid_price_usdt_per_eth = Decimal('2795.75')
-    # For swap USDT→ETH, we need price as ETH/USDT
+    # For swap USDT→ETH, we need price as ETH/USDC
     mid_price = Decimal('1') / mid_price_usdt_per_eth
     
-    decimals_in = 6   # USDT (input)
+    decimals_in = 6   # USDC (input)
     decimals_out = 18  # ETH (output)
-    swap_amount = 3000 * 10**6  # 3000 USDT (input)
+    swap_amount = 3000 * 10**6  # 3000 USDC (input)
     
     generator = SyntheticOrderbookGenerator(
         mid_price=mid_price,
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print("SYNTHETIC ORDERBOOK GENERATOR TEST")
     print("=" * 60)
-    print(f"Direction: USDT → ETH (User buying ETH)")
+    print(f"Direction: USDC → ETH (User buying ETH)")
     print(f"Mid Price: {mid_price_usdt_per_eth} USDT/ETH")
     print(f"Swap Amount: {swap_amount / 10**6:.2f} USDT (input)")
     print()

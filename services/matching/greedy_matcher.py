@@ -143,7 +143,7 @@ if __name__ == "__main__":
     print("=" * 70)
     print()
     
-    # Test scenario: User wants to swap 5000 USDT → ETH
+    # Test scenario: User wants to swap 5000 USDC → ETH
     # Using synthetic orderbook from Module 2
     
     from services.amm_uniswap_v3.uniswap_v3 import get_price_for_pool
@@ -160,17 +160,17 @@ if __name__ == "__main__":
     print(f"Mid Price: {price_usdt_per_eth} USDT/ETH")
     print()
     
-    # For USDT→ETH swap, we need ETH/USDT price
+    # For USDT→ETH swap, we need ETH/USDC price
     price_eth_per_usdt = Decimal('1') / price_usdt_per_eth
     
     # Step 2: Generate orderbook (Module 2)
     print("STEP 2: Generate synthetic orderbook")
     print("-" * 70)
-    swap_amount = 5000 * 10**6  # 5000 USDT
+    swap_amount = 5000 * 10**6  # 5000 USDC
     
     generator = SyntheticOrderbookGenerator(
         mid_price=price_eth_per_usdt,
-        decimals_in=6,   # USDT
+        decimals_in=6,   # USDC
         decimals_out=18  # ETH
     )
     

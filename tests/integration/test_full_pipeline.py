@@ -244,8 +244,8 @@ if __name__ == "__main__":
     print("INTEGRATION TEST: MODULE 1 + 2 + 3 + 4 (FULL PIPELINE)")
     print("=" * 90)
     print()
-    print("Test swap: 10,000 USDT → ETH")
-    print("Pool: ETH/USDT on Base (0xcE1d8c90A5F0ef28fe0F457e5Ad615215899319a)")
+    print("Test swap: 10,000 USDC → ETH")
+    print("Pool: ETH/USDC on Base (0xcE1d8c90A5F0ef28fe0F457e5Ad615215899319a)")
     print()
     
     # Test all 3 scenarios

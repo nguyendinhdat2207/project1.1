@@ -37,14 +37,14 @@ class OrderbookDisplay:
         print_section("📊 ORDERBOOK VIEW")
         
         col_widths = [18, 20, 20, 20]
-        headers = ["PRICE (USDT/ETH)", "AMOUNT (ETH)", "TOTAL (USDT)", "CUMULATIVE"]
+        headers = ["PRICE (USDC/ETH)", "AMOUNT (ETH)", "TOTAL (USDC)", "CUMULATIVE"]
         header_row = ""
         for h, w in zip(headers, col_widths):
             header_row += f"{h:>{w}} "
         print(header_row)
         print_divider(80)
         
-        # ASK SIDE (Red) - Sell ETH, Buy USDT
+        # ASK SIDE (Red) - Sell ETH, Buy USDC
         print("\n🔴 ASK SIDE (You Sell ETH - Higher Prices)")
         print_divider(80)
         
@@ -81,7 +81,7 @@ class OrderbookDisplay:
         print(f"{mid_str:<40} | {spread_color} {spread_str}")
         print_divider(80)
         
-        # BID SIDE (Green) - Buy ETH, Sell USDT
+        # BID SIDE (Green) - Buy ETH, Sell USDC
         print("\n🟢 BID SIDE (You Buy ETH - Lower Prices)")
         print_divider(80)
         

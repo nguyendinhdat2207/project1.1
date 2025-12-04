@@ -45,14 +45,14 @@ def simulate_amm_swap(
     """
     try:
         price_data = get_price_for_pool(pool_address)
-        # price = token1 per token0 (e.g., USDT per ETH = 2793.33)
+        # price = token1 per token0 (e.g., USDC per ETH = 2793.33)
         # token0 = ETH (18 decimals), token1 = USDT (6 decimals)
         
         price = price_data['price_eth_per_usdt']
         
         # Get pool token decimals
         token0_decimals = price_data['decimals0']  # ETH = 18
-        token1_decimals = price_data['decimals1']  # USDT = 6
+        token1_decimals = price_data['decimals1']  # USDC = 6
         
         # Convert amount_in to human-readable
         amount_in_human = Decimal(amount_in) / Decimal(10) ** Decimal(token_in_decimals)
@@ -66,7 +66,7 @@ def simulate_amm_swap(
         elif token_in_decimals == token1_decimals:
             # token_in = token1 (USDT), token_out = token0 (ETH)
             # amount_out = amount_in_human / price
-            # Example: 5000 USDT / 2793.33 = 1.789 ETH
+            # Example: 5000 USDC / 2793.33 = 1.789 ETH
             amount_out_human = amount_in_human / price
         else:
             raise ValueError(

@@ -25,7 +25,7 @@ def test_module1_quoter_integration():
     print()
     
     # Addresses on Base
-    POOL_ADDR = "0xcE1d8c90A5F0ef28fe0F457e5Ad615215899319a"  # ETH/USDT pool
+    POOL_ADDR = "0xcE1d8c90A5F0ef28fe0F457e5Ad615215899319a"  # ETH/USDC pool
     WETH = "0x4200000000000000000000000000000000000006"
     USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
     

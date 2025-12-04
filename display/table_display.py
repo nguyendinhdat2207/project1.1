@@ -29,7 +29,7 @@ class TableOrderbookDisplay(OrderbookDisplayFormatter):
         print("="*130)
         
         # Header
-        header = f"{'CHAIN':<8} | {'RATE (ETH/USDT)':<20} | {'AMOUNT (ETH)':<18} | {'AMOUNT (USDT)':<20} | {'ORDER STATUS':<15}"
+        header = f"{'CHAIN':<8} | {'RATE (ETH/USDC)':<20} | {'AMOUNT (ETH)':<18} | {'AMOUNT (USDC)':<20} | {'ORDER STATUS':<15}"
         print(header)
         print("-"*130)
         
@@ -38,20 +38,20 @@ class TableOrderbookDisplay(OrderbookDisplayFormatter):
         for level in ask_levels:
             price = float(level['price'])
             amount_eth = float(level['amount_in_available'])
-            amount_usdt = price * amount_eth
+            amount_usdc = price * amount_eth
             
             chain_icon = "🔴"
             rate_display = f"{price:,.2f}"
             amount_eth_display = f"{amount_eth:.4f} ETH"
-            amount_usdt_display = f"{amount_usdt:,.2f} USDT"
+            amount_usdc_display = f"{amount_usdc:,.2f} USDC"
             status = "Filled 0%"
             
-            print(f"{chain_icon:<8} | {rate_display:>18} | {amount_eth_display:>16} | {amount_usdt_display:>18} | {status:<15}")
+            print(f"{chain_icon:<8} | {rate_display:>18} | {amount_eth_display:>16} | {amount_usdc_display:>18} | {status:<15}")
         
         # MID PRICE LINE
         print("-"*130)
         spread_bps = self.get_spread_bps(orderbook)
-        print(f"{'💚':<8} | MID PRICE: ${self.mid_price:,.2f} ETH/USDT  |  SPREAD: {self.format_bps(spread_bps)}")
+        print(f"{'💚':<8} | MID PRICE: ${self.mid_price:,.2f} ETH/USDC  |  SPREAD: {self.format_bps(spread_bps)}")
         print("-"*130)
         
         # BID LEVELS (Green) - giá mua thấp hơn mid
@@ -59,15 +59,15 @@ class TableOrderbookDisplay(OrderbookDisplayFormatter):
         for level in bid_levels:
             price = float(level['price'])
             amount_eth = float(level['amount_in_available'])
-            amount_usdt = price * amount_eth
+            amount_usdc = price * amount_eth
             
             chain_icon = "🟢"
             rate_display = f"{price:,.2f}"
             amount_eth_display = f"{amount_eth:.4f} ETH"
-            amount_usdt_display = f"{amount_usdt:,.2f} USDT"
+            amount_usdc_display = f"{amount_usdc:,.2f} USDC"
             status = "Filled 0%"
             
-            print(f"{chain_icon:<8} | {rate_display:>18} | {amount_eth_display:>16} | {amount_usdt_display:>18} | {status:<15}")
+            print(f"{chain_icon:<8} | {rate_display:>18} | {amount_eth_display:>16} | {amount_usdc_display:>18} | {status:<15}")
         
         print("="*130 + "\n")
     

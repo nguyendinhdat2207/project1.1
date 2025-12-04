@@ -113,7 +113,7 @@ class OrderbookCLIMenu:
     def change_mid_price(self):
         
         try:
-            new_price = float(input("Enter new mid price (USDT/ETH): "))
+            new_price = float(input("Enter new mid price (USDC/ETH): "))
             if new_price <= 0:
                 print("❌ Price must be positive")
                 return

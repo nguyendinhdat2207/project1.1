@@ -97,7 +97,7 @@ def get_pool_tokens_and_decimals(pool_address: str):
 def price_from_sqrtprice(sqrtPriceX96: int, decimals0: int, decimals1: int) -> Decimal:
     """
     Convert sqrtPriceX96 to human-readable price.
-    Returns token1 per token0 (e.g., USDT per ETH for ETH/USDT pool).
+    Returns token1 per token0 (e.g., USDC per ETH for ETH/USDC pool).
     """
     sqrt_dec = Decimal(sqrtPriceX96)
     numerator = sqrt_dec * sqrt_dec
@@ -179,7 +179,7 @@ def get_price_for_pool(pool_address: str):
         "decimals1": tokens["decimals1"],
         "sqrtPriceX96": str(sqrtP),
         "tick": int(tick),
-        "price_eth_per_usdt": price  # Decimal - USDT per ETH
+        "price_eth_per_usdt": price  # Decimal - token1 per token0 (USDC per ETH for ETH/USDC pool)
     }
 
 
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     print("=" * 70)
     print()
     
-    # ETH/USDT pool on Base (fee 0.3%)
+    # ETH/USDC pool on Base (fee 0.3%)
     # Source: https://basescan.org/address/0xce1d8c90a5f0ef28fe0f457e5ad615215899319a
     POOL_ADDR = "0xcE1d8c90A5F0ef28fe0F457e5Ad615215899319a"
     
@@ -217,7 +217,7 @@ if __name__ == "__main__":
         print(f"   Price (token1/token0): {price}")
 
         out = get_price_for_pool(POOL_ADDR)
-        print(f"   Price ETH/USDT: {out['price_eth_per_usdt']:.2f} USDT/ETH")
+        print(f"   Price ETH/USDC: {out['price_eth_per_usdt']:.2f} USDC/ETH")
         print()
 
     except Exception as e:
