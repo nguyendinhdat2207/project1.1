@@ -14,10 +14,11 @@
 
 ### Thông số AMM Pool:
 
-- `priceAmm = 3,194.98 USDC/ETH`
-- `priceSpot = 3,194.98 USDC/ETH` (giá spot tại thời điểm backtest)
+- `priceSpot = 3,194.03 USDC/ETH` (giá spot từ sqrtPriceX96 TRƯỚC swap)
+- `priceAfterSwap = 3,185.22 USDC/ETH` (giá SAU swap 33 ETH)
+- `priceImpact = -0.276%` (price impact của swap)
 - Pair: ETH/USDC
-- Fee tier: 0.05%
+- Fee tier: 0.3%
 
 ---
 
@@ -64,9 +65,9 @@ Thay vì tích hợp orderbook ngoài (Kyber, Mangrove, Rubicon), hệ thống t
 
 **Thông số Orderbook:**
 - Generated: 1 level
-- Best price: 3,204.57 USDC/ETH
-- Available: 16.5 ETH (~$52,875 USDC)
-- Improvement vs AMM: ~10 bps
+- Best price: 3,184.45 USDC/ETH
+- Available: 16.5 ETH (~$52,543 USDC)
+- Improvement vs AMM spot: -0.3 bps (thấp hơn spot price)
 
 **Kết quả routing:**
 ```
@@ -78,19 +79,20 @@ Levels used:           1
 
 **Output & Savings:**
 ```
-AMM Reference (100%):     $105,434.41 USDC
-UniHybrid Total Output:   $105,592.56 USDC
-Performance Fee (30%):    $47.45 USDC
-Net to User:              $105,545.12 USDC
+Ideal (spot price):       $105,403.05 USDC
+AMM Reference (100%):     $104,941.75 USDC  
+UniHybrid Total Output:   $105,244.94 USDC
+Performance Fee (30%):    $0.00 USDC
+Net to User:              $105,244.94 USDC
 
-Savings Before Fee:       $158.15 (10.50 bps)
-Savings After Fee:        $110.71 (10.50 bps)
+Savings Before Fee:       $0.00 (0 bps)
+Savings After Fee:        $0.00 (0 bps)
 ```
 
 **Slippage:**
-- Slippage gốc (100% AMM): **0.00 bps** (~$0.00)
-- Slippage sau tối ưu: **-10.50 bps** (~$-110.71)
-- **Improvement: 10.50 bps** (user nhận THÊM so với AMM baseline)
+- Slippage gốc (100% AMM): **43.77 bps** (~$461.30)
+- Slippage sau tối ưu: **15.00 bps** (~$158.10)
+- **Improvement: 28.77 bps** (giảm slippage nhờ route qua orderbook)
 
 ---
 
@@ -98,15 +100,15 @@ Savings After Fee:        $110.71 (10.50 bps)
 
 **Thông số Orderbook:**
 - Generated: 5 levels
-- Best prices: 3,199.77 → 3,209.36 USDC/ETH
-- Total depth: ~83 ETH (~$265,000 USDC)
-- Average improvement vs AMM: ~5-15 bps
+- Best prices: 3,189.24 → 3,169.89 USDC/ETH
+- Total depth: ~88 ETH 
+- Average improvement vs AMM spot: -0.15% to -0.76%
 
 **Top 3 Levels:**
 ```
-Level 1: 3,199.77 USDC/ETH | 29.75 ETH | $95,193.61 USDC
-Level 2: 3,204.57 USDC/ETH | 20.83 ETH | $66,735.33 USDC  
-Level 3: 3,209.36 USDC/ETH | 14.58 ETH | $46,784.59 USDC
+Level 1: 3,189.24 USDC/ETH | 29.75 ETH | $94,880 USDC
+Level 2: 3,184.45 USDC/ETH | 20.83 ETH | $66,316 USDC  
+Level 3: 3,179.66 USDC/ETH | 14.58 ETH | $46,352 USDC
 ```
 
 **Kết quả routing:**
@@ -119,19 +121,20 @@ Levels used:           4
 
 **Output & Savings:**
 ```
-AMM Reference (100%):     $105,434.41 USDC
-UniHybrid Total Output:   $106,021.08 USDC
-Performance Fee (30%):    $176.00 USDC
-Net to User:              $105,845.08 USDC
+Ideal (spot price):       $105,403.05 USDC
+AMM Reference (100%):     $104,941.75 USDC
+UniHybrid Total Output:   $104,816.55 USDC
+Performance Fee (30%):    $0.00 USDC
+Net to User:              $104,816.55 USDC
 
-Savings Before Fee:       $586.67 (38.95 bps)
-Savings After Fee:        $410.67 (38.95 bps)
+Savings Before Fee:       $0.00 (0 bps)
+Savings After Fee:        $0.00 (0 bps)
 ```
 
 **Slippage:**
-- Slippage gốc (100% AMM): **0.00 bps** (~$0.00)
-- Slippage sau tối ưu: **-38.95 bps** (~$-410.67)
-- **Improvement: 38.95 bps** 
+- Slippage gốc (100% AMM): **43.77 bps** (~$461.30)
+- Slippage sau tối ưu: **55.64 bps** (~$586.50)
+- **Improvement: -11.88 bps** (tệ hơn AMM vì OB price thấp hơn) 
 
 ---
 
@@ -139,15 +142,15 @@ Savings After Fee:        $410.67 (38.95 bps)
 
 **Thông số Orderbook:**
 - Generated: 5 levels
-- Best price: 3,322.78 USDC/ETH (cao hơn AMM ~4%)
+- Best price: 3,066.27 USDC/ETH (thấp hơn spot ~4%)
 - Total depth: >1,000,000 ETH (rất sâu)
-- Wide spread tạo cơ hội arbitrage lớn
+- Wide spread tạo giá rất thấp (không tốt cho người bán ETH)
 
 **Top 3 Levels:**
 ```
-Level 1: 3,322.78 USDC/ETH | 350,000 ETH | $1,162,973,497 USDC
-Level 2: 3,450.58 USDC/ETH | 250,000 ETH | $862,645,176 USDC
-Level 3: 3,578.38 USDC/ETH | 200,000 ETH | $715,675,998 USDC
+Level 1: 3,066.27 USDC/ETH | 350,000 ETH | $1,073,195M USDC
+Level 2: 2,938.51 USDC/ETH | 250,000 ETH | $734,627M USDC
+Level 3: 2,810.75 USDC/ETH | 200,000 ETH | $562,150M USDC
 ```
 
 **Kết quả routing:**
@@ -160,19 +163,20 @@ Levels used:           1 (chỉ cần level 1 đã đủ fill toàn bộ)
 
 **Output & Savings:**
 ```
-AMM Reference (100%):     $105,434.41 USDC
-UniHybrid Total Output:   $126,521.29 USDC
-Performance Fee (30%):    $6,326.06 USDC
-Net to User:              $120,195.23 USDC
+Ideal (spot price):       $105,403.05 USDC
+AMM Reference (100%):     $104,941.75 USDC
+UniHybrid Total Output:   $84,322.44 USDC
+Performance Fee (30%):    $0.00 USDC
+Net to User:              $84,322.44 USDC
 
-Savings Before Fee:       $21,086.88 (1400.00 bps)
-Savings After Fee:        $14,760.82 (1400.00 bps)
+Savings Before Fee:       $0.00 (0 bps)
+Savings After Fee:        $0.00 (0 bps)
 ```
 
 **Slippage:**
-- Slippage gốc (100% AMM): **0.00 bps** (~$0.00)
-- Slippage sau tối ưu: **-1400.00 bps** (~$-14,760.82)
-- **Improvement: 1400.00 bps** (tương đương **14% tốt hơn AMM**)
+- Slippage gốc (100% AMM): **43.77 bps** (~$461.30)
+- Slippage sau tối ưu: **2000.00 bps** (~$21,080.61)
+- **Improvement: -1956.23 bps** (RẤT TỆ - giá OB quá thấp)
 
 ---
 
@@ -180,13 +184,15 @@ Savings After Fee:        $14,760.82 (1400.00 bps)
 
 | Trường hợp lệnh $100,000 | Tỷ lệ khớp qua Orderbook | Tỷ lệ vào AMM | Slippage gốc* | Savings (sau fee 30%) | Slippage sau tối ưu** |
 |--------------------------|--------------------------|---------------|---------------|-----------------------|-----------------------|
-| **ETH-USDC (Shallow OB)** | 50.00% | 50.00% | 0.00 bps (~$0) | **$110.71** (11 bps) | -10.50 bps (~$-110.71) |
-| **ETH-USDC (Medium OB)** | 100.00% | 0.00% | 0.00 bps (~$0) | **$410.67** (39 bps) | -38.95 bps (~$-410.67) |
-| **ETH-USDC (Deep OB)** | 100.00% | 0.00% | 0.00 bps (~$0) | **$14,760.82** (1400 bps) | -1400.00 bps (~$-14,760.82) |
+| **ETH-USDC (Shallow OB)** | 50.00% | 50.00% | **43.77 bps** (~$461) | **$0.00** (0 bps) | **15.00 bps** (~$158) |
+| **ETH-USDC (Medium OB)** | 100.00% | 0.00% | **43.77 bps** (~$461) | **$0.00** (0 bps) | **55.64 bps** (~$587) |
+| **ETH-USDC (Deep OB)** | 100.00% | 0.00% | **43.77 bps** (~$461) | **$0.00** (0 bps) | **2000 bps** (~$21K) |
 
 **Ghi chú:**
-- *Slippage gốc: Slippage nếu swap 100% qua AMM so với giá spot (trong trường hợp này giá AMM = spot nên slippage = 0)
-- **Slippage sau tối ưu: Slippage sau khi routing tối ưu qua UniHybrid, đã trừ performance fee 30%. Giá trị âm nghĩa là user nhận NHIỀU HƠN so với baseline AMM.
+- *Slippage gốc: Slippage nếu swap 100% qua AMM so với giá spot từ `sqrtPriceX96` (TRƯỚC swap). Giá trị **43.77 bps** là price impact thực tế khi swap 33 ETH.
+- **Slippage sau tối ưu: Slippage sau khi routing tối ưu qua UniHybrid, đã trừ performance fee 30%. 
+  - Small scenario: Giảm từ 43.77 → 15.00 bps (**cải thiện 28.77 bps**)
+  - Medium/Large: Tệ hơn vì synthetic OB có giá thấp hơn AMM
 
 ---
 
@@ -201,43 +207,48 @@ Savings After Fee:        $14,760.82 (1400.00 bps)
 
 **Synthetic Orderbook (báo cáo này):**
 - Tỷ lệ khớp qua orderbook: **50-100%** tùy scenario
-- Savings: **$110 - $14,760** (11-1400 bps)
-- Lý do: Synthetic OB được thiết kế với thanh khoản đủ lớn và giá tốt hơn AMM
+- Kết quả: 
+  - **Shallow**: Giảm slippage từ 43.77 → 15.00 bps (+28.77 bps improvement)
+  - **Medium/Deep**: Tệ hơn AMM do giá synthetic OB thấp hơn spot price
+- Lý do: Synthetic OB được thiết kế với thanh khoản đủ lớn nhưng giá có thể không tốt
 
 ### 5.2. Insight từ kết quả
 
-1. **Shallow Orderbook (50% fill)**
+1. **Shallow Orderbook (50% fill) - TỐT**
    - Orderbook shallow chỉ đủ thanh khoản cho 50% order
-   - Vẫn tạo savings **$110** (~11 bps) dù chỉ fill một nửa
-   - Chứng minh ngay cả OB nhỏ cũng có giá trị
+   - Tạo improvement **28.77 bps** nhờ giá OB gần với spot price
+   - Routing 50/50 giữa OB và AMM tối ưu hơn 100% AMM
 
-2. **Medium Orderbook (100% fill)**
-   - Orderbook đủ sâu (2.5× swap amount) cho phép fill 100%
-   - Savings tăng lên **$410** (~39 bps)
-   - Đây là scenario realistic nhất cho orderbook thực tế
+2. **Medium Orderbook (100% fill) - TỆ**
+   - Orderbook đủ sâu nhưng giá **thấp hơn** AMM
+   - Slippage tăng lên **55.64 bps** (so với 43.77 bps của AMM)
+   - Chứng minh không phải OB nào cũng tốt hơn AMM
 
-3. **Deep Orderbook (100% fill với giá premium)**
-   - Orderbook rất sâu với wide spread (4%)
-   - Savings khổng lồ **$14,760** (~1400 bps = 14%)
-   - Mô phỏng trường hợp market maker cung cấp thanh khoản với premium cao
+3. **Deep Orderbook (100% fill) - RẤT TỆ**
+   - Orderbook rất sâu nhưng giá premium **quá thấp** (-4% so với spot)
+   - Slippage khổng lồ **2000 bps** (~20%)
+   - Mô phỏng trường hợp giá OB không hợp lý
 
-### 5.3. Tác động của Performance Fee
+### 5.3. Slippage Calculation - Key Improvement
 
-Performance fee 30% được áp dụng trên savings:
-- **Case 1**: Fee = $47 (30% × $158) → User nhận $110
-- **Case 2**: Fee = $176 (30% × $586) → User nhận $410
-- **Case 3**: Fee = $6,326 (30% × $21,086) → User nhận $14,760
+**Trước đây (BUG):**
+- Slippage gốc = 0 bps (vì dùng AMM price = spot price)
+- Không phản ánh price impact thực tế
 
-Ngay cả sau khi trừ fee 30%, user vẫn nhận được **70% savings**, tạo win-win:
-- **User**: Nhận giá tốt hơn AMM
-- **Protocol**: Thu fee từ value creation thực sự
+**Bây giờ (FIXED):**
+- Giá spot từ `sqrtPriceX96` (TRƯỚC swap): 3,194.03 USDC/ETH
+- Giá sau swap từ `sqrtPriceX96After` (SAU swap): 3,185.22 USDC/ETH
+- **Slippage AMM = 43.77 bps** (~$461.30 cho 33 ETH swap)
+- Price impact: -0.276%
+
+Đây là **realistic** cho swap ~$100K trên pool Uniswap V3.
 
 ### 5.4. Ưu điểm của UniHybrid Routing
 
 1. **Tối ưu hóa tự động**: Greedy algorithm chọn best price từ cả OB và AMM
 2. **Slippage protection**: Min output đảm bảo user không bị loss
-3. **Transparent fee**: Performance fee chỉ tính trên savings, không phải volume
-4. **Scalable**: Hoạt động tốt với mọi kích thước orderbook
+3. **Transparent calculation**: Slippage tính chính xác từ sqrtPriceX96
+4. **Realistic benchmarking**: So sánh với AMM actual output, không phải estimated price
 
 ### 5.5. Hạn chế và cải tiến
 
