@@ -36,15 +36,41 @@ class GreedyMatcher:
         swap_amount: int,
         is_bid: bool = False
     ) -> Dict:
+        """
+        Greedy matching algorithm.
         
-        min_better_price = self.price_amm * (
-            Decimal('1') + Decimal(self.ob_min_improve_bps) / Decimal('10000')
-        )
+        - is_bid=False (ASK): User mua tokenOut bằng tokenIn
+          → Muốn giá THẤP (mua rẻ hơn AMM)
+          → Sort levels từ THẤP → CAO
+          → Dùng levels có price < AMM * (1 + margin)
         
+        - is_bid=True (BID): User bán tokenIn lấy tokenOut  
+          → Muốn giá CAO (bán đắt hơn AMM)
+          → Sort levels từ CAO → THẤP
+          → Dùng levels có price > AMM * (1 - margin)
+        """
+        
+        # Calculate price threshold based on direction
+        if is_bid:
+            # BID: User bán tokenIn → muốn giá CAO hơn AMM
+            # Chỉ dùng levels có price >= AMM * (1 - margin)
+            min_better_price = self.price_amm * (
+                Decimal('1') - Decimal(self.ob_min_improve_bps) / Decimal('10000')
+            )
+        else:
+            # ASK: User mua tokenOut → muốn giá THẤP hơn AMM
+            # Chỉ dùng levels có price <= AMM * (1 + margin)
+            min_better_price = self.price_amm * (
+                Decimal('1') + Decimal(self.ob_min_improve_bps) / Decimal('10000')
+            )
+        
+        # Sort levels based on direction
+        # BID: cao → thấp (reverse=True) - bán với giá cao nhất trước
+        # ASK: thấp → cao (reverse=False) - mua với giá thấp nhất trước
         sorted_levels = sorted(
             levels,
             key=lambda lvl: lvl.price,
-            reverse=True
+            reverse=is_bid
         )
         
         remaining_in = swap_amount
@@ -54,8 +80,15 @@ class GreedyMatcher:
         levels_better_than_amm = 0
         
         for level in sorted_levels:
-            if level.price < min_better_price:
-                break
+            # Check if level price is still better than AMM
+            if is_bid:
+                # BID: Dừng nếu giá quá thấp (< threshold)
+                if level.price < min_better_price:
+                    break
+            else:
+                # ASK: Dừng nếu giá quá cao (> threshold)
+                if level.price > min_better_price:
+                    break
             
             levels_better_than_amm += 1
             

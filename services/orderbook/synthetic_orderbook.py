@@ -27,14 +27,22 @@ class SyntheticOrderbookGenerator:
         swap_amount: int,
         is_bid: bool = False
     ) -> List[OrderbookLevel]:
+        """
+        Generate small (thin) orderbook scenario.
+        
+        - is_bid=False (ASK): price = mid * (1 - spread) → below mid
+        - is_bid=True (BID): price = mid * (1 + spread) → above mid
+        """
         
         DEPTH_MULTIPLIER = Decimal('0.5')
         SPREAD_BPS = Decimal('30')
         
         if is_bid:
-            price = self.mid_price * (1 - SPREAD_BPS / Decimal('10000'))
-        else:
+            # BID: giá cao hơn mid
             price = self.mid_price * (1 + SPREAD_BPS / Decimal('10000'))
+        else:
+            # ASK: giá thấp hơn mid
+            price = self.mid_price * (1 - SPREAD_BPS / Decimal('10000'))
         
         amount_in_available = int(Decimal(swap_amount) * DEPTH_MULTIPLIER)
         amount_out_available = self._calculate_amount_out(amount_in_available, price)
@@ -57,6 +65,15 @@ class SyntheticOrderbookGenerator:
         decay_factor: Decimal = Decimal('0.7'),
         target_depth_multiplier: Decimal = Decimal('2.5')
     ) -> List[OrderbookLevel]:
+        """
+        Generate medium scenario orderbook.
+        
+        - is_bid=False (ASK): User mua base (e.g., ETH) → cần giá THẤP
+          → Generate levels: mid * (1 - spread), mid * (1 - 2*spread), ...
+        
+        - is_bid=True (BID): User bán base (e.g., ETH) → cần giá CAO  
+          → Generate levels: mid * (1 + spread), mid * (1 + 2*spread), ...
+        """
         
         levels: List[OrderbookLevel] = []
         total_unscaled = Decimal('0')
@@ -64,9 +81,11 @@ class SyntheticOrderbookGenerator:
         for i in range(1, num_levels + 1):
             spread = spread_step_bps * i / Decimal('10000')
             if is_bid:
-                price = self.mid_price * (1 - spread)
-            else:
+                # BID: User bán base → muốn giá CAO (above mid)
                 price = self.mid_price * (1 + spread)
+            else:
+                # ASK: User mua base → muốn giá THẤP (below mid)
+                price = self.mid_price * (1 - spread)
             
             size_multiplier = base_size_multiplier * (decay_factor ** (i - 1))
             amount_in_unscaled = Decimal(swap_amount) * size_multiplier
@@ -104,6 +123,12 @@ class SyntheticOrderbookGenerator:
         capital_usd: Decimal = Decimal('1000000'),
         is_bid: bool = False
     ) -> List[OrderbookLevel]:
+        """
+        Generate large (CEX-like) orderbook scenario.
+        
+        - is_bid=False (ASK): prices = mid * (1 - spread_i) → below mid
+        - is_bid=True (BID): prices = mid * (1 + spread_i) → above mid
+        """
         
         NUM_LEVELS = 5
         SPREAD_STEP_BPS = Decimal('400')
@@ -133,9 +158,11 @@ class SyntheticOrderbookGenerator:
         for i in range(NUM_LEVELS):
             spread = SPREAD_STEP_BPS * (i + 1) / Decimal('10000')
             if is_bid:
-                price = self.mid_price * (1 - spread)
-            else:
+                # BID: giá cao hơn mid (above)
                 price = self.mid_price * (1 + spread)
+            else:
+                # ASK: giá thấp hơn mid (below)
+                price = self.mid_price * (1 - spread)
             
             amount_in_available = int(
                 Decimal(capital_in_base_units) * SIZE_DISTRIBUTION[i]
