@@ -7,7 +7,13 @@ So sánh hiệu quả routing giữa:
 """
 
 from decimal import Decimal
-from services.amm_uniswap_v3.uniswap_v3 import get_price_for_pool
+from services.amm_uniswap_v3.uniswap_v3 import (
+    get_price_for_pool,
+    get_slot0,
+    price_from_sqrtprice,
+    get_pool_tokens_and_decimals,
+    get_amm_output
+)
 from services.orderbook import SyntheticOrderbookGenerator
 from services.matching import GreedyMatcher
 from services.execution.core.execution_plan import ExecutionPlanBuilder
@@ -39,25 +45,52 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     TOKEN_ETH = "0x4200000000000000000000000000000000000006"
     TOKEN_USDC = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
     
-    # Fetch AMM price
+    # Fetch pool data
     print("📊 Bước 1: Lấy giá từ AMM Pool")
     pool_data = get_price_for_pool(POOL_ADDRESS)
-    price_usdc_per_eth = pool_data['price_eth_per_usdt']  # USDC/ETH
-    price_eth_per_usdc = Decimal('1') / price_usdc_per_eth
     
-    print(f"   Pool: ETH/USDC")
-    print(f"   AMM Price: {float(price_usdc_per_eth):,.2f} USDC/ETH\n")
+    # Lấy sqrtPriceX96 để tính giá spot (giá TRƯỚC khi swap)
+    slot0 = get_slot0(POOL_ADDRESS)
+    token_info = get_pool_tokens_and_decimals(POOL_ADDRESS)
+    price_spot = price_from_sqrtprice(
+        slot0['sqrtPriceX96'],
+        token_info['decimals0'],  # ETH = 18
+        token_info['decimals1']   # USDC = 6
+    )
     
     # Convert swap amount
     swap_amount_base = int(swap_amount_eth * 10**18)  # WETH có 18 decimals
-    swap_amount_usd = swap_amount_eth * float(price_usdc_per_eth)
     
-    print(f"💰 Swap Amount: {swap_amount_eth} ETH (~{format_currency(swap_amount_usd)})")
+    # Lấy giá SAU khi swap qua AMM để tính slippage
+    amm_quote = get_amm_output(
+        token_in=TOKEN_ETH,
+        token_out=TOKEN_USDC,
+        amount_in=swap_amount_base,
+        fee=3000
+    )
+    price_after_swap = price_from_sqrtprice(
+        amm_quote['sqrtPriceX96After'],
+        token_info['decimals0'],
+        token_info['decimals1']
+    )
     
-    # Baseline: 100% AMM
+    print(f"   Pool: ETH/USDC")
+    print(f"   Spot Price (before swap):  {float(price_spot):,.4f} USDC/ETH")
+    print(f"   Price After Swap:          {float(price_after_swap):,.4f} USDC/ETH")
+    print(f"   Price Impact:              {float((price_after_swap - price_spot) / price_spot * 100):+.4f}%\n")
+    
+    # Tính ideal output (theo giá spot) và actual output (theo giá sau swap)
+    ideal_output = swap_amount_eth * float(price_spot)  # Giá spot (không có slippage)
+    swap_amount_usd = swap_amount_eth * float(price_spot)  # Dùng spot price cho consistency
+    
+    print(f"💰 Swap Amount: {swap_amount_eth} ETH")
+    print(f"   Value at spot price: {format_currency(ideal_output)}")
+    print(f"   Actual AMM output:   {format_currency(float(amm_quote['amountOut']) / 10**6)}\n")
+    
+    # Baseline: 100% AMM - dùng actual AMM output
     print(f"\n📈 Bước 2: Tính baseline (100% AMM)")
-    amm_output_usdc = swap_amount_eth * float(price_usdc_per_eth)
-    print(f"   Nếu swap 100% qua AMM: {amm_output_usdc:,.2f} USDC")
+    amm_reference_output = float(amm_quote['amountOut']) / 10**6  # USDC
+    print(f"   Nếu swap 100% qua AMM: {amm_reference_output:,.2f} USDC")
     
     # Generate synthetic orderbook
     # Swap ETH → USDC: ta bán ETH, mua USDC
@@ -65,7 +98,7 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     # Input: ETH (18 decimals), Output: USDC (6 decimals)
     print(f"\n📚 Bước 3: Generate Synthetic Orderbook ({scenario_type})")
     generator = SyntheticOrderbookGenerator(
-        price_usdc_per_eth,  # Giá USDC/ETH (price của output token per input token)
+        price_spot,  # Dùng giá spot làm mid price
         decimals_in=18,  # ETH input
         decimals_out=6   # USDC output
     )
@@ -85,7 +118,7 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     # Greedy matching
     print(f"\n🎯 Bước 4: Greedy Matching")
     matcher = GreedyMatcher(
-        price_usdc_per_eth,  # AMM price
+        price_spot,  # Dùng spot price làm reference
         decimals_in=18,
         decimals_out=6,
         ob_min_improve_bps=5  # Orderbook phải tốt hơn AMM ít nhất 5 bps
@@ -105,7 +138,7 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     # Build execution plan
     print(f"\n⚙️  Bước 5: Build Execution Plan")
     builder = ExecutionPlanBuilder(
-        price_amm=price_usdc_per_eth,  # USDC/ETH
+        price_amm=price_spot,  # Dùng spot price
         decimals_in=18,
         decimals_out=6,
         performance_fee_bps=3000,  # 30%
@@ -121,14 +154,16 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     )
     
     # Calculate results
-    amm_reference = float(execution_plan['amm_reference_out']) / 10**6  # USDC
+    # Override AMM reference với actual output từ quoter
+    amm_reference = amm_reference_output  # Đã tính ở trên từ get_amm_output()
     expected_total = float(execution_plan['expected_total_out']) / 10**6  # USDC
     savings_before = float(execution_plan['savings_before_fee']) / 10**6
     savings_after = float(execution_plan['savings_after_fee']) / 10**6
     perf_fee = float(execution_plan['performance_fee_amount']) / 10**6
     
-    # Calculate slippage
-    ideal_output = swap_amount_usd  # Nếu không có slippage
+    # Calculate slippage so với giá spot (sqrtPriceX96)
+    # ideal_output = giá spot × amount (không có slippage)
+    # amm_reference = actual AMM output (có slippage do price impact)
     slippage_original_usd = ideal_output - amm_reference
     slippage_original_bps = (slippage_original_usd / ideal_output * 10000) if ideal_output > 0 else 0
     
