@@ -5,6 +5,7 @@
 - Python 3.12.3 hoặc cao hơn
 - pip (Python package manager)
 - Git (tùy chọn, để quản lý version)
+- RPC endpoint cho Base network (xem phần cài đặt)
 
 ## Cài Đặt Môi Trường
 
@@ -16,8 +17,14 @@ python -m venv .venv
 
 ### 2. Kích Hoạt Virtual Environment
 
+**Linux/Mac:**
 ```bash
 source .venv/bin/activate
+```
+
+**Windows:**
+```bash
+.venv\Scripts\activate
 ```
 
 ### 3. Cài Đặt Dependencies
@@ -32,6 +39,60 @@ Các package chính bao gồm:
 - uvicorn: ASGI server
 - pytest: Testing framework
 - pandas: Xử lý dữ liệu
+
+### 4. Cấu Hình RPC Endpoint
+
+Copy file `.env.example` thành `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Sau đó chọn **MỘT** trong các options sau:
+
+#### ⭐ Option 1: Infura (Khuyến nghị - Nhanh, ổn định)
+
+1. Đăng ký tài khoản miễn phí tại: https://infura.io/
+2. Tạo project mới và chọn network "Base"
+3. Copy API Key (Project ID)
+4. Cập nhật file `.env`:
+
+```bash
+RPC_URL=https://base-mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID
+```
+
+**Ví dụ:**
+```bash
+RPC_URL=https://base-mainnet.infura.io/v3/126a7c2fdbb44458bfc2f267708acee8
+```
+
+#### ⭐ Option 2: Alchemy (Hiệu năng cao)
+
+1. Đăng ký tại: https://www.alchemy.com/
+2. Tạo app mới với network "Base Mainnet"
+3. Copy API Key
+4. Cập nhật file `.env`:
+
+```bash
+RPC_URL=https://base-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_API_KEY
+```
+
+#### ⭐ Option 3: Public RPC (Miễn phí, không cần đăng ký)
+
+Sử dụng trực tiếp mà không cần API key:
+
+```bash
+# Option 3a: 1RPC (nhanh, miễn phí)
+RPC_URL=https://1rpc.io/base
+
+# Option 3b: PublicNode (tốc độ tốt)
+RPC_URL=https://base.publicnode.com
+
+# Option 3c: Base Official (có thể chậm)
+RPC_URL=https://mainnet.base.org
+```
+
+**Lưu ý:** Public RPC có thể bị giới hạn requests, khuyến nghị dùng Infura hoặc Alchemy cho production.
 
 ## Chạy Các Thành Phần
 
