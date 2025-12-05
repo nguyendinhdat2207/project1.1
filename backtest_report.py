@@ -94,15 +94,16 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     
     # Generate synthetic orderbook
     # Swap ETH → USDC: ta bán ETH, mua USDC
-    # Muốn giá tốt = giá CAO hơn AMM → dùng ASK side (is_bid=False)
+    # User bán ETH → ASK side (is_bid=False) 
+    # ASK price < mid price (worse for seller, có spread)
     # Input: ETH (18 decimals), Output: USDC (6 decimals)
     print(f"\n📚 Bước 3: Generate Synthetic Orderbook ({scenario_type})")
     generator = SyntheticOrderbookGenerator(
-        price_spot,  # Dùng giá spot làm mid price
+        price_spot,  # Mid price = Spot price (theo góp ý leader)
         decimals_in=18,  # ETH input
         decimals_out=6   # USDC output
     )
-    # is_bid=False → ASK side (giá cao hơn mid) tốt cho người bán ETH
+    # is_bid=False → ASK side (giá THẤP hơn mid do spread)
     levels = generator.generate(scenario_type, swap_amount_base, is_bid=False)
     print(f"   Generated {len(levels)} orderbook levels")
     
@@ -115,13 +116,22 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
             amount_usdc = float(level.amount_out_available) / 10**6
             print(f"      Level {i}: {price:,.2f} USDC/ETH | {amount_eth:.4f} ETH available | {amount_usdc:,.2f} USDC output")
     
+    # Calculate AMM effective price (sau slippage)
+    # AMM effective price = amount_out / amount_in
+    # Đây là giá THỰC TẾ sau khi swap qua AMM (đã bao gồm slippage)
+    amm_amount_out_usdc = float(amm_quote['amountOut']) / 10**6
+    amm_effective_price = Decimal(str(amm_amount_out_usdc / swap_amount_eth))
+    
+    print(f"\n💡 AMM Effective Price (sau slippage): {float(amm_effective_price):,.4f} USDC/ETH")
+    print(f"   Slippage vs spot: {float((amm_effective_price - price_spot) / price_spot * 10000):+.2f} bps")
+    
     # Greedy matching
     print(f"\n🎯 Bước 4: Greedy Matching")
     matcher = GreedyMatcher(
-        price_spot,  # Dùng spot price làm reference
+        amm_effective_price,  # ✅ Dùng AMM effective price (SAU slippage) làm baseline
         decimals_in=18,
         decimals_out=6,
-        ob_min_improve_bps=5  # Orderbook phải tốt hơn AMM ít nhất 5 bps
+        ob_min_improve_bps=10  # ✅ OPTIMIZED: Threshold 10 bps (safety margin hợp lý)
     )
     # is_bid=False vì ta đang bán ETH (match với ask side)
     match_result = matcher.match(levels, swap_amount_base, is_bid=False)
@@ -138,7 +148,7 @@ def run_backtest_scenario(scenario_name: str, swap_amount_eth: float, scenario_t
     # Build execution plan
     print(f"\n⚙️  Bước 5: Build Execution Plan")
     builder = ExecutionPlanBuilder(
-        price_amm=price_spot,  # Dùng spot price
+        price_amm=amm_effective_price,  # Dùng AMM effective price (post-slippage) để tính savings
         decimals_in=18,
         decimals_out=6,
         performance_fee_bps=3000,  # 30%

@@ -30,18 +30,26 @@ class SyntheticOrderbookGenerator:
         """
         Generate small (thin) orderbook scenario.
         
+        Kịch bản 1: Shallow orderbook (OPTIMIZED)
+        - 1 level
+        - Spread: 35 bps (wide spread cho shallow liquidity)
+        - Decay: 0.5 (50% coverage)
+        
+        Optimized: -35 bps vs AMM -43 bps = +8 bps margin < threshold 10 (edge case)
+        Realistic: Shallow OB thường có spread rộng (30-50 bps)
+        
         - is_bid=False (ASK): price = mid * (1 - spread) → below mid
         - is_bid=True (BID): price = mid * (1 + spread) → above mid
         """
         
-        DEPTH_MULTIPLIER = Decimal('0.5')
-        SPREAD_BPS = Decimal('30')
+        DEPTH_MULTIPLIER = Decimal('0.5')  # 50% coverage
+        SPREAD_BPS = Decimal('35')  # ✅ 35 bps below spot = ~8 bps better than AMM effective (~-43 bps)
         
         if is_bid:
             # BID: giá cao hơn mid
             price = self.mid_price * (1 + SPREAD_BPS / Decimal('10000'))
         else:
-            # ASK: giá thấp hơn mid
+            # ASK: giá thấp hơn mid BUT better than AMM effective
             price = self.mid_price * (1 - SPREAD_BPS / Decimal('10000'))
         
         amount_in_available = int(Decimal(swap_amount) * DEPTH_MULTIPLIER)
@@ -60,19 +68,26 @@ class SyntheticOrderbookGenerator:
         swap_amount: int,
         is_bid: bool = False,
         num_levels: int = 5,
-        spread_step_bps: Decimal = Decimal('15'),
+        spread_step_bps: Decimal = Decimal('8'),  # 8 bps step (OPTIMIZED!)
         base_size_multiplier: Decimal = Decimal('1.0'),
-        decay_factor: Decimal = Decimal('0.7'),
+        decay_factor: Decimal = Decimal('0.7'),  # 0.7 decay
         target_depth_multiplier: Decimal = Decimal('2.5')
     ) -> List[OrderbookLevel]:
         """
         Generate medium scenario orderbook.
         
-        - is_bid=False (ASK): User mua base (e.g., ETH) → cần giá THẤP
-          → Generate levels: mid * (1 - spread), mid * (1 - 2*spread), ...
+        Kịch bản 2: Medium orderbook (OPTIMIZED)
+        - 5 levels
+        - Spread step: 8 bps (levels at -8, -16, -24, -32, -40 bps from spot)
+        - Decay: 0.7 (level size giảm dần)
+        - Target depth: 2.5x swap amount
         
-        - is_bid=True (BID): User bán base (e.g., ETH) → cần giá CAO  
-          → Generate levels: mid * (1 + spread), mid * (1 + 2*spread), ...
+        Optimized: Deeper levels để beat AMM effective (~-43 bps):
+        - Levels 4-5 (-32, -40 bps) có margin ~3-11 bps vs AMM ✅
+        - Matcher sẽ accept levels tốt, skip levels tệ
+        
+        - is_bid=False (ASK): User bán ETH → prices = mid * (1 - spread) → below mid
+        - is_bid=True (BID): User mua ETH → prices = mid * (1 + spread) → above mid
         """
         
         levels: List[OrderbookLevel] = []
@@ -120,64 +135,74 @@ class SyntheticOrderbookGenerator:
     def generate_scenario_large(
         self,
         swap_amount: int,
-        capital_usd: Decimal = Decimal('1000000'),
-        is_bid: bool = False
+        is_bid: bool = False,
+        num_levels: int = 10,
+        spread_step_bps: Decimal = Decimal('10'),  # ✅ 10 bps step
+        base_size_multiplier: Decimal = Decimal('1.0'),
+        decay_factor: Decimal = Decimal('0.5'),  # ✅ 0.5 decay (size giảm nhanh, best levels lớn)
+        target_depth_multiplier: Decimal = Decimal('2.5')
     ) -> List[OrderbookLevel]:
         """
-        Generate large (CEX-like) orderbook scenario.
+        Generate large (deep) orderbook scenario - CEX-like.
         
-        - is_bid=False (ASK): prices = mid * (1 - spread_i) → below mid
-        - is_bid=True (BID): prices = mid * (1 + spread_i) → above mid
+        Kịch bản 3: Deep orderbook (OPTIMIZED)
+        - 10 levels
+        - Spread step: 10 bps (levels at -10, -20, -30, -40, -50, -60, -70, -80, -90, -100 bps)
+        - Decay: 0.5 (size giảm nhanh → best levels có size lớn nhất)
+        - Target depth: 2.5x swap amount
+        
+        Optimized strategy:
+        - Many levels nhưng BEST levels (tốt nhất) có SIZE LỚN NHẤT
+        - Levels 1-4 (-10 đến -40 bps): Tệ hơn AMM → Skip
+        - Levels 5-10 (-50 đến -100 bps): Tốt hơn AMM → Match
+        - Với decay 0.5: Levels xa (tốt) có size NHỎ, levels gần (tệ) có size LỚN
+        - → Cần đảo ngược: Levels tốt cần size lớn!
+        
+        - is_bid=False (ASK): User bán ETH → prices = mid * (1 - spread) → below mid
+        - is_bid=True (BID): User mua ETH → prices = mid * (1 + spread) → above mid
         """
         
-        NUM_LEVELS = 5
-        SPREAD_STEP_BPS = Decimal('400')
-        
-        SIZE_DISTRIBUTION = [
-            Decimal('0.35'),
-            Decimal('0.25'),
-            Decimal('0.20'),
-            Decimal('0.12'),
-            Decimal('0.08'),
-        ]
-        
         levels: List[OrderbookLevel] = []
+        total_unscaled = Decimal('0')
         
-        if is_bid:
-            capital_in_base = capital_usd * self.mid_price
-            capital_in_base_units = int(
-                capital_in_base * Decimal(10 ** self.decimals_in)
-            )
-        else:
-            capital_in_quote = capital_usd
-            capital_in_quote_units = int(
-                capital_in_quote * Decimal(10 ** self.decimals_in)
-            )
-            capital_in_base_units = capital_in_quote_units
-        
-        for i in range(NUM_LEVELS):
-            spread = SPREAD_STEP_BPS * (i + 1) / Decimal('10000')
+        for i in range(1, num_levels + 1):
+            spread = spread_step_bps * i / Decimal('10000')
             if is_bid:
-                # BID: giá cao hơn mid (above)
+                # BID: User mua ETH → muốn giá CAO (above mid)
                 price = self.mid_price * (1 + spread)
             else:
-                # ASK: giá thấp hơn mid (below)
+                # ASK: User bán ETH → muốn giá THẤP (below mid)
                 price = self.mid_price * (1 - spread)
             
-            amount_in_available = int(
-                Decimal(capital_in_base_units) * SIZE_DISTRIBUTION[i]
-            )
-            amount_out_available = self._calculate_amount_out(amount_in_available, price)
+            size_multiplier = base_size_multiplier * (decay_factor ** (i - 1))
+            amount_in_unscaled = Decimal(swap_amount) * size_multiplier
+            total_unscaled += amount_in_unscaled
             
-            levels.append(
+            levels.append({
+                'price': price,
+                'amount_in_unscaled': amount_in_unscaled
+            })
+        
+        target_total = Decimal(swap_amount) * target_depth_multiplier
+        scale_factor = target_total / total_unscaled if total_unscaled > 0 else Decimal('1')
+        
+        result: List[OrderbookLevel] = []
+        for level_data in levels:
+            amount_in_available = int(level_data['amount_in_unscaled'] * scale_factor)
+            amount_out_available = self._calculate_amount_out(
+                amount_in_available, 
+                level_data['price']
+            )
+            
+            result.append(
                 OrderbookLevel(
-                    price=price,
+                    price=level_data['price'],
                     amount_in_available=amount_in_available,
                     amount_out_available=amount_out_available
                 )
             )
         
-        return levels
+        return result
     
     def generate(
         self,
@@ -186,7 +211,7 @@ class SyntheticOrderbookGenerator:
         is_bid: bool = False,
         capital_usd: Decimal = Decimal('1000000'),
         num_levels: int = 5,
-        spread_step_bps: Decimal = Decimal('15'),
+        spread_step_bps: Decimal = Decimal('8'),  # ✅ OPTIMIZED: 8 bps default
         base_size_multiplier: Decimal = Decimal('1.0'),
         decay_factor: Decimal = Decimal('0.7'),
         target_depth_multiplier: Decimal = Decimal('2.5')
@@ -204,7 +229,17 @@ class SyntheticOrderbookGenerator:
                 target_depth_multiplier=target_depth_multiplier
             )
         elif scenario == 'large':
-            return self.generate_scenario_large(swap_amount, capital_usd, is_bid)
+            # ✅ STRATEGY: Deep OB với nhiều levels GẦN SPOT, spread hẹp
+            # Giống CEX orderbook: nhiều levels, spread nhỏ, liquidity sâu
+            return self.generate_scenario_medium(
+                swap_amount=swap_amount,
+                is_bid=is_bid,
+                num_levels=10,  # 10 levels (deep orderbook)
+                spread_step_bps=Decimal('5'),  # ✅ 5 bps step: -5, -10, -15... -50 bps
+                base_size_multiplier=Decimal('1.0'),
+                decay_factor=Decimal('0.85'),  # 0.85 decay (distribution khá đều)
+                target_depth_multiplier=Decimal('3.0')  # Depth lớn (3x)
+            )
         else:
             raise ValueError(f"Invalid scenario: {scenario}")
     

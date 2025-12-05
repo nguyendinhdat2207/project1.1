@@ -80,15 +80,18 @@ class GreedyMatcher:
         levels_better_than_amm = 0
         
         for level in sorted_levels:
-            # Check if level price is still better than AMM
+            # Check if level price is better than AMM threshold
+            is_level_better = False
             if is_bid:
-                # BID: Dừng nếu giá quá thấp (< threshold)
-                if level.price < min_better_price:
-                    break
+                # BID: Level tốt nếu giá >= threshold (bán đắt)
+                is_level_better = level.price >= min_better_price
             else:
-                # ASK: Dừng nếu giá quá cao (> threshold)
-                if level.price > min_better_price:
-                    break
+                # ASK: Level tốt nếu giá <= threshold (mua rẻ)
+                is_level_better = level.price <= min_better_price
+            
+            # Skip level if not better than AMM
+            if not is_level_better:
+                continue
             
             levels_better_than_amm += 1
             
